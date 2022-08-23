@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
     integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <title>Bancos</title>
+  <title>Solictudes</title>
 </head>
 
 <body>
@@ -41,33 +41,32 @@
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             {% endif %}
-            {% if data['banco'] %}
-              <form action="/usuario/editar/{{data['banco']['_id']}}" method="POST">
-                <div class="mb-3">
-                  <input type="text" value="{{data['banco']['nombre']}}" name="nombre" class="form-control" placeholder="Nombre" required>
-                </div>
-                <div class="mb-3">
-                  <input type="text" value="{{data['banco']['pais']}}" name="pais" class="form-control" placeholder="País" required>
-                </div>
-                <div class="mb-3">
-                  <input type="text" value="{{data['banco']['tasaInteres']}}" name="tasaInteres" class="form-control" placeholder="Tasa de interés" required>
-                </div>
-                <button class="btn btn-primary w-100" type="submit">Actualizar</button>
-              </form>
-            {% else %}
-              <form action="/banco" method="POST">
-                <div class="mb-3">
-                  <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
-                </div>
-                <div class="mb-3">
-                  <input type="text" name="pais" class="form-control" placeholder="País" required>
-                </div>
-                <div class="mb-3">
-                  <input type="text" name="tasaInteres" class="form-control" placeholder="Tasa de interés" required>
-                </div>
-                <button class="btn btn-primary w-100" type="submit">Agregar</button>
-              </form>
-            {% endif %}
+            <form action="/solicitud" method="POST">
+              <div class="mb-3">
+                <select class="form-select"name="usuario" aria-label="Default select example" required>
+                  {% for i in data['usuarios'] %}
+                    <option value="{{i['_id']}}">{{i['nombre']}} {{i['apellido']}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <select class="form-select"name="banco" aria-label="Default select example" required>
+                  {% for i in data['bancos'] %}
+                    <option value="{{i['_id']}}">{{i['nombre']}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <input type="number" name="cantidad" class="form-control" placeholder="Cantidad" required>
+              </div>
+              <div class="mb-3">
+                <input type="number" name="plazo" class="form-control" placeholder="Plazo (Meses)" required>
+              </div>
+              <div class="mb-3">
+                <input type="number" name="diaPago" class="form-control" placeholder="Día de pago" required>
+              </div>
+              <button class="btn btn-primary w-100" type="submit">Agregar</button>
+            </form>
           </div>
         </div>
       </div>
@@ -76,20 +75,22 @@
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>País</th>
-                <th>Tasa de interés</th>
-                <th>Acción</th>
+                <th>Cantidad</th>
+                <th>PLazo (meses)</th>
+                <th>Usuario</th>
+                <th>Banco</th>
+                <th>Accion</th>
               </tr>
             </thead>
             <tbody>
-              {% for i in data['bancos'] %}
+              {% for i in data['solicitudes'] %}
               <tr>
-                <td>{{ i['nombre'] }}</td>
-                <td>{{ i['pais'] }}</td>
-                <td>{{ i['tasaInteres'] }}</td>
+                <td>{{ i['cantidad'] }}</td>
+                <td>{{ i['plazo'] }}</td>
+                <td>{{ i['usuario'] }}</td>
+                <td>{{ i['banco'] }}</td>
                 <td>
-                  <a href="/banco/eliminar/{{ i['_id'] }}" class="text-danger">
+                  <a href="/solicitud/eliminar/{{ i['_id'] }}" class="text-danger">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                   </a>
                 </td>

@@ -92,11 +92,66 @@ def bancoEliminar(id):
   bd.bancos.delete_one({'_id':ObjectId(id)})
   return redirect('/banco')
 
+@app.route('/solicitud',methods=['GET','POST'])
+def solicitud():
+  data = {}
+  if request.method == 'POST':
+    try:
+      solicitud = {}
+      solicitud['cantidad'] = int(request.form['cantidad'])
+      solicitud['plazo'] = int(request.form['plazo'])
+      solicitud['diaPago'] = int(request.form['diaPago'])
+      solicitud['_usuario'] = request.form['usuario']
+      solicitud['_banco'] = request.form['banco']
+      solicitud['amortizacion'] = []
+
+      if solicitud['cantidad'] < 100:
+        data['mensaje'] = 'La cantidad debe ser mayor a 100'
+        data['color'] = 'danger'
+      elif solicitud['plazo'] <= 0:
+        data['mensaje'] = 'El plazo debe ser positivo'
+        data['color'] = 'danger'
+      elif solicitud['diaPago'] < 1 or solicitud['diaPago'] > 30:
+        data['mensaje'] = 'El día de pago esta fuera del rango'
+        data['color'] = 'danger'
+      else:
+        bd.solicitudes.insert_one(solicitud)
+        data['mensaje'] = 'Solicitud agregada'
+        data['color'] = 'success'
+    except:
+
+      data['mensaje'] = 'Ocurrio un error'
+      data['danger'] = 'success'
+  data['bancos'] = cargarBancos()
+  data['usuarios'] = cargarUsuarios()
+  data['solicitudes'] = cargarSolicitudes()
+  return render_template('solicitud.html',data=data)
+
+@app.route('/solicitud/eliminar/<id>',methods=['GET'])
+def solicitudEliminar(id):
+  bd.solicitudes.delete_one({'_id':ObjectId(id)})
+  return redirect('/solicitud')
+
 def cargarBancos():
   lista = []
   for i in bd.bancos.find():
     i['_id'] = str(i['_id'])
     lista.append(i)
+  return lista
+
+def cargarSolicitudes():
+  lista = []
+  for i in bd.solicitudes.find():
+    i['_id'] = str(i['_id'])
+    usuario = bd.usuarios.find_one({'_id':ObjectId(i['_usuario'])})
+    banco = bd.bancos.find_one({'_id':ObjectId(i['_banco'])})
+    lista.append({
+      '_id':i['_id'],
+      'usuario': f"{usuario['nombre']} {usuario['apellido']}",
+      'banco': banco['nombre'],
+      'cantidad':i['cantidad'],
+      'plazo':i['plazo']
+    })
   return lista
 
 if __name__ == "__main__":
